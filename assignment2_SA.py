@@ -1,35 +1,45 @@
 #%%
+import numpy as np
+
 beta = 0.01
 initial_rate = 0.1
 states=91
 #%%
-def p(i):
+
+def pπ(i):
     return(initial_rate+beta*i)
+def prob(i):
+    return(initial_rate+beta*i,1-(initial_rate+beta*i))
 #%%
-sum2 = 0
-for j in range(1,states):
-    prod = 1
-    for i in range(1,j+1):
-        prod*=p(i)
-    sum2+=prod
+p = np.zeros((states,states))
+for x in range(len(p[0])-1):
+    p[0][x],p[x+1][x] = prob(x)
+p[0][90]=1
+
+#%%
+cost = p[0]
+
+#%%
+#calculating stationary Distribution 'π'
+πp = []
+πp.append(1)
+πp.append(0.9)
+for i in range(2,states):
+    πp.append(πp[i-1]*(πp[1]-(0.01*(i-1))))
 
 π = []
-π.append(1/(1+sum2))
+π.append(1/sum(πp))
 
 print(π)
 for j in range(1,states):
-    prod = 1
-    for i in range(0,j):
-        prod*=p(i+1)
-    π.append(prod*π[0])
-    
-# %%
-print(sum(π))
-# %%
+    π.append(π[0]*πp[j])
 print(π)
+print(sum(π))#checking if it's 1
 # %%
+#calculating ø = ∑ π•c
 ø=0
-for i in range(len(π)-1):
-    ø+=(i+1)*π[i]
+for i in range(states):
+    ø += cost[i]*π[i]
 print(ø)
+
 # %%
