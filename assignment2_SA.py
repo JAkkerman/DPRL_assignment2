@@ -1,29 +1,25 @@
 # %%
+#initialising variables
 import numpy as np
 
 beta = 0.01
 initial_rate = 0.1
 states = 91
 # %%
-
-
+# defining probabilities
 def pπ(i):
     return(initial_rate+beta*i)
-
-
 def prob(i):
     return(initial_rate+beta*i, 1-(initial_rate+beta*i))
-
-
 # %%
-p = np.zeros((states, states))
-for x in range(len(p[0])-1):
-    p[0][x], p[x+1][x] = prob(x)
-p[0][90] = 1
-
+#probability of state transaition through action 1
+p_a1 = np.zeros((states, states))
+for x in range(len(p_a1[0])-1):
+    p_a1[0][x], p_a1[x+1][x] = prob(x)
+p_a1[0][90] = 1
 # %%
-cost = p[0]
-
+# declaring costs
+cost = p_a1[0]
 # %%
 # calculating stationary Distribution 'π'
 πp = []
@@ -35,17 +31,17 @@ for i in range(2, states):
 π = []
 π.append(1/sum(πp))
 
-print(π)
+# print(π)
 for j in range(1, states):
     π.append(π[0]*πp[j])
-print(π)
-print(sum(π))  # checking if it's 1
+# print(π)
+# print(sum(π))  # checking if it's 1
 # %%
 # calculating ø = ∑ π•c
 ø = 0
 for i in range(states):
     ø += cost[i]*π[i]
-print(ø)
+print("ø = ",ø)
 
 # %%
 # solving average cost Poisson's Equation
@@ -53,6 +49,7 @@ V = np.zeros((states))#initializing all values and taking V[0] as zero for compu
 V[states-1] = 1 - ø + V[0]
 for i in range(states-2):
     j = states-2-i
-    V[j] = cost[j] + p[0][j]*V[0] + p[j+1][j]*V[j+1] - ø
-print(V)
+    V[j] = cost[j] + p_a1[0][j]*V[0] + p_a1[j+1][j]*V[j+1] - ø
+# print(V)
 # %%
+#Starting Policy Iteration
