@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 
 
@@ -40,8 +41,9 @@ def stationary():
 
     x = np.linalg.solve(A, r)
     print(x)
+    print(sum(x))
 
-
+#%%
 if __name__ == '__main__':
 
     T = 10000
@@ -49,3 +51,4 @@ if __name__ == '__main__':
 
     # deteriorate(T, N)
     stationary()
+# %%
