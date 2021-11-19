@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 import pandas as pd
 
@@ -79,3 +80,4 @@ if __name__ == '__main__':
     # deteriorate(T, N)
     # solve_Poisson()
     policy_iteration()
+# %%
