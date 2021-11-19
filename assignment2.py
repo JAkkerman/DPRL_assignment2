@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 
 def deteriorate(T, N):
@@ -20,26 +21,54 @@ def deteriorate(T, N):
     print(np.mean(all_replacement_cost))
 
 
-def stationary():
+def solve_Poisson(alpha = None, policy_iteration=False):
+
+    # set up probability matrix
     P = np.zeros((91,91))
-    P[0,0] = 0.1
     P[0,1] = 0.9
     for i in range(1,91):
         P[i,0] = P[i-1,0] + 0.01
         if i < 90:
             P[i,i+1] = P[i-1,i] - 0.01
 
-    r = np.zeros(91).T
-    r[0] = -1
+    r = -(0.1 + P[:,0])
+    r[0] = -0.1
 
-    A = np.identity(91)
+    if policy_iteration:
+        # change p(y|x) to p(y|x,alpha(x))
+        location_of_1 = np.where(alpha==1)[0][0]
+        P[location_of_1:, location_of_1+1:] = 0
+
+        # change r(x) to r(x, alpha)
+        r[location_of_1] = -0.5
+        r[location_of_1+1:] = 0
+
     A = np.zeros((91,91))
     A[:, :-1] = np.identity(91)[:,1:]
-    A[:,-1] = 1  # fill in coefficient for phi
+
+    # fill in coefficient for phi at last column
+    A[:,-1] = 1
+
+    # fill in probabilities
     A[:,:-1] -= P[:,1:]
 
+    # solve system of equations
     x = np.linalg.solve(A, r)
-    print(x)
+    phi = x[-1]
+
+    return phi
+
+
+def policy_iteration():
+    """
+    Performs policy iteration to find optimal policy
+    """
+    alpha_tilde = np.identity(91) # columns are different policies
+
+    # get (V, phi) for all alphas:
+    all_phis = np.array([solve_Poisson(alpha=alpha, policy_iteration=True) for alpha in alpha_tilde[:,]])
+    best_alpha = np.argmax(all_phis)
+    print(f'Policy iteration:\n     Best time to replace: {best_alpha+1}.\n     φ at replacement: {all_phis[best_alpha]}.')
 
 
 if __name__ == '__main__':
@@ -48,4 +77,5 @@ if __name__ == '__main__':
     N = 1000
 
     # deteriorate(T, N)
-    stationary()
+    # solve_Poisson()
+    policy_iteration()
