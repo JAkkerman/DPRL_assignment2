@@ -81,15 +81,16 @@ def value_iteration(iteration):
             P[i,i+1] = P[i-1,i] - 0.01
 
     r = -(0.1 + P[:,0])
-    print(r)
     r[0] = -0.1
 
     #Start Policy Iteration
     V = np.zeros((91))
+    newV = np.zeros((91))
     for j in range(iteration):
         for i in range(90):
-            V[i] = max(r[i] + P[i,0]*V[0] + P[i,i+1]*V[i+1], -0.5 + V[0])
-        V[90] = -0.5 - V[0]
+            newV[i] = max(r[i] + P[i,0]*V[0] + P[i,i+1]*V[i+1], -0.5 + V[0])
+        newV[90] = -0.5 + V[0]
+        V = newV
 
     print("Convergence at Step: ",len(list(set(V))))
     # print(V)
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     T = 10000
     N = 1000
     iteration = 10000
-    
+
     # deteriorate(T, N)
     # solve_Poisson()
     # policy_iteration()

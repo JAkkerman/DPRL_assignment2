@@ -57,10 +57,12 @@ oldV = V
 #%%
 #Starting Value Iteration
 V = np.zeros((states))
+newV = np.zeros((states))
 for j in range(1000):
     for i in range(states-1):
-        V[i] = min(cost[i] + p_a1[0][i]*V[i] + p_a1[i+1][i]*V[i+1], 0.5 + V[0])
-    V[states-1] = 0.5 + V[0]
+        newV[i] = min(cost[i] + p_a1[0][i]*V[i] + p_a1[i+1][i]*V[i+1], 0.5 + V[0])
+    newV[states-1] = 0.5 + V[0]
+    V = newV
 print("Convergence at Step: ",len(list(set(V))))
 
 # %%
