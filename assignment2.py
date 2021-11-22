@@ -1,28 +1,38 @@
-#%%
 import numpy as np
 import pandas as pd
 
 
-def deteriorate(T, N):
+def stationary_distribution():
+    """
+    Computes the stationary distribution to get the average cost
+    """
 
-    all_replacement_cost = []
+    # set up probability matrix P:
+    P = np.zeros((91,91))
+    P[0,1] = 0.9
+    P[0,0] = 0.1
+    for i in range(1,91):
+        P[i,0] = P[i-1,0] + 0.01
+        if i < 90:
+            P[i,i+1] = P[i-1,i] - 0.01
 
-    for n in range(N):
-        prob_of_breaking = 0.1
-        replacement_cost = 0
-        for t in range(T):
-            if np.random.uniform() < prob_of_breaking:
-                replacement_cost += 1
-                prob_of_breaking = 0.1
-            else:
-                prob_of_breaking += 0.01
+    # set up A matrix and b vector
+    A = np.zeros((92,91))
+    A[:-1,:] = P.T - np.identity(91)
+    A[-1,:] = 1
 
-        all_replacement_cost.append(replacement_cost/T)
-        
-    print(np.mean(all_replacement_cost))
+    b = np.zeros(92)
+    b[-1] = 1
+
+    np.set_printoptions(suppress=True)
+    x = np.linalg.solve(A[1:,:], b[1:])
+    print('Stationary distribution:\n', x)
 
 
 def solve_Poisson(alpha = None, policy_iteration=False):
+    """
+    Solves the Poisson equation to get the average cost
+    """
 
     # set up probability matrix
     P = np.zeros((91,91))
@@ -71,7 +81,11 @@ def policy_iteration():
     best_alpha = np.argmax(all_phis)
     print(f'Policy iteration:\n     Best time to replace: {best_alpha+1}.\n     φ at replacement: {all_phis[best_alpha]}.')
 
+
 def value_iteration(iteration):
+    """
+    Performs value iteration to get the optimal policy
+    """
     # set up probability matrix
     P = np.zeros((91,91))
     P[0,1] = 0.9
@@ -97,16 +111,16 @@ def value_iteration(iteration):
 
         V = newV.copy()
 
-    print("Convergence at Step: ", len(list(set(V))))
-    print(V/iteration)
+    print("Value iteration:\n     Best time to replace: ", len(list(set(V))))
 
 if __name__ == '__main__':
 
     T = 10000
     N = 1000
-    iteration = 10000
+    iterations = 100000
 
-    # deteriorate(T, N)
-    # solve_Poisson()
-    # policy_iteration()
-    value_iteration(iteration)
+    stationary_distribution()
+    phi = solve_Poisson()
+    print(f'Poisson equation:\n     Average cost (φ): {phi}')
+    policy_iteration()
+    value_iteration(iterations)
